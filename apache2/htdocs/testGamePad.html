@@ -20,6 +20,8 @@
     var serverPort = "1099"
     var hasGP = false; //est ce que le gamePad est connecté?
     var repGP;
+
+    var connection;
  
 	//Le navigateur reconnait il cette propriété?
     function canGame() {
@@ -70,15 +72,15 @@
 			    }
 
 			    // open connection
-			    var connection = new WebSocket(serverAdress + ":" + serverPort);
+			    connection = new WebSocket(serverAdress + ":" + serverPort);
                 
 			    connection.onopen = function () {
 			        $("generalPrompt").text("Pour commencer, branchez votre gamePad et appuyez sur un bouton");
 			    };
 
 			    connection.onerror = function (error) {
-			        $("generalPrompt").text("Sorry, but there\'s some problem with your '
-                                    + 'connection or the server is down.");
+			        $("generalPrompt").text("Sorry, but there\'s some problem with your "
+                                    + "connection or the server is down.");
 			    };
 
 			    // most important part - incoming messages
@@ -140,7 +142,7 @@
 		drawCar(posX, posY, carWidth, carHeight, angleInDegrees);
 		
 	};
-	
+
 	image.src = "car.png";
 
 	function drawCar(posX, posY, larg, haut, angle){
