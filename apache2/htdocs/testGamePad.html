@@ -62,46 +62,7 @@
                 $("#gamepadPrompt").html("Gamepad connected!");
                 console.log("connection event");
 
-                // if user is running mozilla then use it's built-in WebSocket
-			    window.WebSocket = window.WebSocket || window.MozWebSocket;
-
-			    // if browser doesn't support WebSocket, just show some notification and exit
-			    if (!window.WebSocket) {
-			    	$("generalPrompt").text('Sorry, but your browser doesn\'t '
-                                    + 'support WebSockets.');
-			        return;
-			    }
-
-			    // open connection
-			    connection = new WebSocket(serverAdress + ":" + serverPort);
-                
-			    connection.onopen = function () {
-			        $("generalPrompt").text("Pour commencer, branchez votre gamePad et appuyez sur un bouton");
-			    };
-
-			    connection.onerror = function (error) {
-			        $("generalPrompt").text("Sorry, but there\'s some problem with your "
-                                    + "connection or the server is down.");
-			    };
-
-			    // most important part - incoming messages
-			    connection.onmessage = function (message) {
-			        // try to parse JSON message. Because we know that the server always returns
-			        // JSON this should work without any problem but we should make sure that
-			        // the massage is not chunked or otherwise damaged.
-			        try {
-			            var json = JSON.parse(message.data);
-			        } catch (e) {
-			            console.log('This doesn\'t look like a valid JSON: ', message.data);
-			            return;
-			        }
-
-			        posX = json.posX;
-			     	posY = json.posY;
-			        angle = json.angle;
-
-			        drawScene();   
-			    }
+                launchConnection();
 
                 //Ceci est une boucle de jeu
                 repGP = window.setInterval(reportOnGamepad,100); //On interroge régulièrement le gamePad pour connaître ses variations d'état
@@ -121,46 +82,7 @@
                 $("#gamepadPrompt").html("Keyboard connected!");
                 console.log("connection event");
 
-                // if user is running mozilla then use it's built-in WebSocket
-			    window.WebSocket = window.WebSocket || window.MozWebSocket;
-
-			    // if browser doesn't support WebSocket, just show some notification and exit
-			    if (!window.WebSocket) {
-			    	$("generalPrompt").text('Sorry, but your browser doesn\'t '
-                                    + 'support WebSockets.');
-			        return;
-			    }
-
-			    // open connection
-			    connection = new WebSocket(serverAdress + ":" + serverPort);
-                
-			    connection.onopen = function () {
-			        $("generalPrompt").text("Pour commencer, branchez votre gamePad et appuyez sur un bouton");
-			    };
-
-			    connection.onerror = function (error) {
-			        $("generalPrompt").text("Sorry, but there\'s some problem with your "
-                                    + "connection or the server is down.");
-			    };
-
-			    // most important part - incoming messages
-			    connection.onmessage = function (message) {
-			        // try to parse JSON message. Because we know that the server always returns
-			        // JSON this should work without any problem but we should make sure that
-			        // the massage is not chunked or otherwise damaged.
-			        try {
-			            var json = JSON.parse(message.data);
-			        } catch (e) {
-			            console.log('This doesn\'t look like a valid JSON: ', message.data);
-			            return;
-			        }
-
-			        posX = json.posX;
-			     	posY = json.posY;
-			        angle = json.angle;
-
-			        drawScene();   
-			    }
+                launchConnection();
 
                 //Ceci est une boucle de jeu
                 //repGP = window.setInterval(reportOnGamepad,100); //On interroge régulièrement le gamePad pour connaître ses variations d'état
@@ -229,6 +151,45 @@
             })
         }
     });
+
+	function launchConnection(){
+		// if user is running mozilla then use it's built-in WebSocket
+	    window.WebSocket = window.WebSocket || window.MozWebSocket;
+
+	    // if browser doesn't support WebSocket, just show some notification and exit
+	    if (!window.WebSocket) {
+	    	$("generalPrompt").text('Sorry, but your browser doesn\'t '
+                            + 'support WebSockets.');
+	        return;
+	    }
+
+	    // open connection
+	    connection = new WebSocket(serverAdress + ":" + serverPort);
+        
+	    connection.onopen = function () {
+	        $("generalPrompt").text("Pour commencer, branchez votre gamePad et appuyez sur un bouton");
+	    };
+
+	    connection.onerror = function (error) {
+	        $("generalPrompt").text("Sorry, but there\'s some problem with your "
+                            + "connection or the server is down.");
+	    };
+
+	    // most important part - incoming messages
+	    connection.onmessage = function (message) {
+	        // try to parse JSON message. Because we know that the server always returns
+	        // JSON this should work without any problem but we should make sure that
+	        // the massage is not chunked or otherwise damaged.
+	        try {
+	            var json = JSON.parse(message.data);
+	        } catch (e) {
+	            console.log('This doesn\'t look like a valid JSON: ', message.data);
+	            return;
+	        }
+
+	        drawScene(json);   
+	    }
+	}
 
 
 	var canvas = document.getElementById('gameScene');
@@ -335,8 +296,13 @@
 		posY -= speed * Math.cos(angle);
 	}
 
-	function drawScene(){
-		drawCar(posX, posY, carWidth, carHeight, angle);
+	function drawScene(allPlayers){
+		for each (player in allPlayers){
+			posX = player.posX;
+			posY = player.posY;
+			angle = player.angle;
+			drawCar(posX, posY, carWidth, carHeight, angle);
+		}
 		//document.getElementById("speedPrompt").innerHTML="Speed : " + speed;
 	}
     </script>
