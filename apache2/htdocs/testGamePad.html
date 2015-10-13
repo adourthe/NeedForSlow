@@ -109,9 +109,7 @@
             $(window).on("keydown", function(e){
         		var event = window.event ? window.event : e;
             	if(!hasGP && !hasKeyboard){
-            		if(event.keyCode >= 37 && event.keyCode <= 40){
             			$(window).trigger("keyboardconnected"); //déclenchement de l'événement	
-            		}
             	} else if(hasKeyboard){
             		switch(event.keyCode){
             			case 37:
@@ -124,6 +122,18 @@
             				dirTemp = 1;
             				break;
             			case 40:
+            				downTemp = true;
+            				break;
+        				case 81:
+            				dirTemp = -1;
+            				break;
+            			case 90:
+        					upTemp = true;
+            				break;
+            			case 68:
+            				dirTemp = 1;
+            				break;
+            			case 83:
             				downTemp = true;
             				break;
             			default:
