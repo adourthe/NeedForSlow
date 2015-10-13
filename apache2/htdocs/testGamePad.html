@@ -297,11 +297,8 @@
 	}
 
 	function drawScene(allPlayers){
-		for each (player in allPlayers){
-			posX = player.posX;
-			posY = player.posY;
-			angle = player.angle;
-			drawCar(posX, posY, carWidth, carHeight, angle);
+		for(i = 0 ; i < allPlayers.length ; i++){
+			drawCar(allPlayers[i].posX, allPlayers[i].posY, carWidth, carHeight, allPlayers[i].angle);
 		}
 		//document.getElementById("speedPrompt").innerHTML="Speed : " + speed;
 	}
