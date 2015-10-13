@@ -169,9 +169,7 @@
 			dir : gp.axes[0]
 		}
 
-		console.log(JSON.stringify(state));
-
-		connection.sendUTF(JSON.stringify(state));
+		connection.send(JSON.stringify(state));
 	}
 
 	function updateState(){
