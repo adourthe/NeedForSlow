@@ -58,17 +58,19 @@
             $("#gamepadPrompt").text(prompt);
  
             $(window).on("gamepadconnected", function() { //rattachement  de l'événement (cf plus bas) à une callback
-                hasGP = true; //on garde en mémoire qu'il existe un gamePad
-                $("#gamepadPrompt").html("Gamepad connected!");
-                console.log("connection event");
+                if(!hasKeyboard){
+	                hasGP = true; //on garde en mémoire qu'il existe un gamePad
+	                $("#gamepadPrompt").html("Gamepad connected!");
+	                console.log("connection event");
 
-                launchConnection();
+	                launchConnection();
 
-                //Ceci est une boucle de jeu
-                repGP = window.setInterval(reportOnGamepad,100); //On interroge régulièrement le gamePad pour connaître ses variations d'état
-                //Dans l'idéal, on utilise pas setInterval mais requestAnimationFrame (cf http://creativejs.com/resources/requestanimationframe/)
+	                //Ceci est une boucle de jeu
+	                repGP = window.setInterval(reportOnGamepad,100); //On interroge régulièrement le gamePad pour connaître ses variations d'état
+	                //Dans l'idéal, on utilise pas setInterval mais requestAnimationFrame (cf http://creativejs.com/resources/requestanimationframe/)
 
-				setInterval(gameLoop, 15); 
+					setInterval(gameLoop, 15); 
+				}
             });
  
             $(window).on("gamepaddisconnected", function() {//récupération de l'événement (cf plus bas)
@@ -78,17 +80,19 @@
             });
 
             $(window).on("keyboardconnected", function() {//récupération de l'événement (cf plus bas)
-                hasKeyboard = true; //on garde en mémoire qu'il existe un gamePad
-                $("#gamepadPrompt").html("Keyboard connected!");
-                console.log("connection event");
+                if(!hasGP){
+	                hasKeyboard = true; //on garde en mémoire qu'il existe un gamePad
+	                $("#gamepadPrompt").html("Keyboard connected!");
+	                console.log("connection event");
 
-                launchConnection();
+	                launchConnection();
 
-                //Ceci est une boucle de jeu
-                //repGP = window.setInterval(reportOnGamepad,100); //On interroge régulièrement le gamePad pour connaître ses variations d'état
-                //Dans l'idéal, on utilise pas setInterval mais requestAnimationFrame (cf http://creativejs.com/resources/requestanimationframe/)
+	                //Ceci est une boucle de jeu
+	                //repGP = window.setInterval(reportOnGamepad,100); //On interroge régulièrement le gamePad pour connaître ses variations d'état
+	                //Dans l'idéal, on utilise pas setInterval mais requestAnimationFrame (cf http://creativejs.com/resources/requestanimationframe/)
 
-				setInterval(gameLoop, 15); 
+					setInterval(gameLoop, 15); 
+				}
             });
  
             //Chrome nécessite un petit interval, Firefox, non, mais cela ne dérange pas.
