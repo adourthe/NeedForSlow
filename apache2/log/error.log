@@ -4,3 +4,6 @@
 [Tue Oct 06 16:34:26 2015] [warn] pid file /users/imr/adourthe/Documents/webSocket/apache2/run/apache.pid overwritten -- Unclean shutdown of previous Apache run?
 [Tue Oct 06 16:34:26 2015] [notice] Apache/2.2.22 (Ubuntu) PHP/5.3.10-1ubuntu3.20 with Suhosin-Patch configured -- resuming normal operations
 [Tue Oct 06 16:34:44 2015] [error] [client 127.0.0.1] File does not exist: /users/imr/adourthe/Documents/webSocket/apache2/htdocs/favicon.ico
+[Tue Oct 13 17:09:52 2015] [warn] pid file /users/imr/adourthe/Documents/webSocket/apache2/run/apache.pid overwritten -- Unclean shutdown of previous Apache run?
+[Tue Oct 13 17:09:52 2015] [notice] Apache/2.2.22 (Ubuntu) PHP/5.3.10-1ubuntu3.20 with Suhosin-Patch configured -- resuming normal operations
+[Tue Oct 13 17:10:07 2015] [error] [client 127.0.0.1] File does not exist: /users/imr/adourthe/Documents/webSocket/apache2/htdocs/favicon.ico
