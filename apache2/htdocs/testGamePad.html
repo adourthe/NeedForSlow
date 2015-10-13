@@ -178,7 +178,7 @@
                 }
             }, 500);
 
-            $window.on("keydown", function(e){
+            $(window).on("keydown", function(e){
         		var event = window.event ? window.event : e;
             	if(!hasGP && !hasKeyboard){
             		if(event.keyCode >= 37 && event.keyCode <= 40){
@@ -205,7 +205,7 @@
                 window.clearInterval(checkGP);
             })
 
-            $window.on("keyup", function(e){
+            $(window).on("keyup", function(e){
         		var event = window.event ? window.event : e;
             	if(hasKeyboard){
             		switch(event.keyCode){
