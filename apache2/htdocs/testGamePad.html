@@ -95,7 +95,9 @@
             var checkGP = window.setInterval(function() {
                 console.log('checkGP');
                 if(navigator.getGamepads()[0]) {
-                    if(!hasGP && !hasKeyboard) $(window).trigger("gamepadconnected"); //déclenchement de l'événement
+                    if(!hasGP && !hasKeyboard) {
+                    	$(window).trigger("gamepadconnected"); //déclenchement de l'événement
+                	}
                     window.clearInterval(checkGP);
                 }
             }, 500);
@@ -147,7 +149,6 @@
             				break;
             		}
             	}
-                window.clearInterval(checkGP);
             })
         }
     });
@@ -239,16 +240,19 @@
 				down : gp.buttons[6].pressed,
 				dir : gp.axes[0]
 			}
-		} else if(hasKeyboard){
 
+			connection.send(JSON.stringify(state));
+		} else if(hasKeyboard){
 			state = {
 				up : upTemp,
 				down : downTemp,
 				dir : dirTemp
 			}
+
+			connection.send(JSON.stringify(state));
 		}
 
-		connection.send(JSON.stringify(state));
+		
 	}
 
 	function updateState(){
