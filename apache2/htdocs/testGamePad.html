@@ -20,6 +20,7 @@
     var serverPort = "1099"
     var hasGP = false; //est ce que le gamePad est connecté?
     var repGP;
+    var hasKeyboard = false;
 
     var connection;
  
@@ -114,15 +115,118 @@
                 $("#gamepadPrompt").text(prompt);
                 window.clearInterval(repGP);
             });
+
+            $(window).on("keyboardconnected", function() {//récupération de l'événement (cf plus bas)
+                hasKeyboard = true; //on garde en mémoire qu'il existe un gamePad
+                $("#gamepadPrompt").html("Keyboard connected!");
+                console.log("connection event");
+
+                // if user is running mozilla then use it's built-in WebSocket
+			    window.WebSocket = window.WebSocket || window.MozWebSocket;
+
+			    // if browser doesn't support WebSocket, just show some notification and exit
+			    if (!window.WebSocket) {
+			    	$("generalPrompt").text('Sorry, but your browser doesn\'t '
+                                    + 'support WebSockets.');
+			        return;
+			    }
+
+			    // open connection
+			    connection = new WebSocket(serverAdress + ":" + serverPort);
+                
+			    connection.onopen = function () {
+			        $("generalPrompt").text("Pour commencer, branchez votre gamePad et appuyez sur un bouton");
+			    };
+
+			    connection.onerror = function (error) {
+			        $("generalPrompt").text("Sorry, but there\'s some problem with your "
+                                    + "connection or the server is down.");
+			    };
+
+			    // most important part - incoming messages
+			    connection.onmessage = function (message) {
+			        // try to parse JSON message. Because we know that the server always returns
+			        // JSON this should work without any problem but we should make sure that
+			        // the massage is not chunked or otherwise damaged.
+			        try {
+			            var json = JSON.parse(message.data);
+			        } catch (e) {
+			            console.log('This doesn\'t look like a valid JSON: ', message.data);
+			            return;
+			        }
+
+			        posX = json.posX;
+			     	posY = json.posY;
+			        angle = json.angle;
+
+			        drawScene();   
+			    }
+
+                //Ceci est une boucle de jeu
+                //repGP = window.setInterval(reportOnGamepad,100); //On interroge régulièrement le gamePad pour connaître ses variations d'état
+                //Dans l'idéal, on utilise pas setInterval mais requestAnimationFrame (cf http://creativejs.com/resources/requestanimationframe/)
+
+				setInterval(gameLoop, 15); 
+            });
  
             //Chrome nécessite un petit interval, Firefox, non, mais cela ne dérange pas.
             var checkGP = window.setInterval(function() {
                 console.log('checkGP');
                 if(navigator.getGamepads()[0]) {
-                    if(!hasGP) $(window).trigger("gamepadconnected"); //déclenchement de l'événement
+                    if(!hasGP && !hasKeyboard) $(window).trigger("gamepadconnected"); //déclenchement de l'événement
                     window.clearInterval(checkGP);
                 }
             }, 500);
+
+            $window.on("keydown", function(e){
+        		var event = window.event ? window.event : e;
+            	if(!hasGP && !hasKeyboard){
+            		if(event.keyCode >= 37 && event.keyCode <= 40){
+            			$(window).trigger("keyboardconnected"); //déclenchement de l'événement	
+            		}
+            	} else if(hasKeyboard){
+            		switch(event.keyCode){
+            			case 37:
+            				dirTemp = -1;
+            				break;
+            			case 38:
+        					upTemp = true;
+            				break;
+            			case 39:
+            				dirTemp = 1;
+            				break;
+            			case 40:
+            				downTemp = true;
+            				break;
+            			default:
+            				break;
+            		}
+            	}
+                window.clearInterval(checkGP);
+            })
+
+            $window.on("keyup", function(e){
+        		var event = window.event ? window.event : e;
+            	if(hasKeyboard){
+            		switch(event.keyCode){
+            			case 37:
+            				dirTemp = 0;
+            				break;
+            			case 38:
+        					upTemp = false;
+            				break;
+            			case 39:
+            				dirTemp = 0;
+            				break;
+            			case 40:
+            				downTemp = false;
+            				break;
+            			default:
+            				break;
+            		}
+            	}
+                window.clearInterval(checkGP);
+            })
         }
     });
 
@@ -145,6 +249,10 @@
 
 	image.src = "car.png";
 
+	var upTemp = false;
+	var downTemp = false;
+	var dirTemp = 0;
+
 	function drawCar(posX, posY, larg, haut, angle){
 		ctx.clearRect(0,0,canvas.width,canvas.height);
 		ctx.save();
@@ -162,11 +270,21 @@
 
 	function sendState(){
 		var gp = navigator.getGamepads()[0];
+		var state;
 
-		var state = {
-			up : gp.buttons[7].pressed,
-			down : gp.buttons[6].pressed,
-			dir : gp.axes[0]
+		if(hasGP){
+			state = {
+				up : gp.buttons[7].pressed,
+				down : gp.buttons[6].pressed,
+				dir : gp.axes[0]
+			}
+		} else if(hasKeyboard){
+
+			state = {
+				up : upTemp,
+				down : downTemp,
+				dir : dirTemp
+			}
 		}
 
 		connection.send(JSON.stringify(state));
