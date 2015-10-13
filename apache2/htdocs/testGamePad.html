@@ -10,12 +10,14 @@
     </head>
     <body>
 	<canvas id="gameScene" width="1000" height="600" style="border:1px solid; border-radius:2px;"  ></canvas>
-	<div id="speedPrompt"></div>    
+	<div id="generalPrompt"></div>    
 	<div id="gamepadPrompt"></div>
     <div id="gamepadDisplay"></div>
  	
 	
     <script>
+    var serverAdress = "ws://localhost"
+    var serverPort = "1099"
     var hasGP = false; //est ce que le gamePad est connecté?
     var repGP;
  
@@ -56,7 +58,48 @@
                 hasGP = true; //on garde en mémoire qu'il existe un gamePad
                 $("#gamepadPrompt").html("Gamepad connected!");
                 console.log("connection event");
+
+                // if user is running mozilla then use it's built-in WebSocket
+			    window.WebSocket = window.WebSocket || window.MozWebSocket;
+
+			    // if browser doesn't support WebSocket, just show some notification and exit
+			    if (!window.WebSocket) {
+			    	$("generalPrompt").text('Sorry, but your browser doesn\'t '
+                                    + 'support WebSockets.');
+			        return;
+			    }
+
+			    // open connection
+			    var connection = new WebSocket(serverAdress + ":" + serverPort);
                 
+			    connection.onopen = function () {
+			        $("generalPrompt").text("Pour commencer, branchez votre gamePad et appuyez sur un bouton");
+			    };
+
+			    connection.onerror = function (error) {
+			        $("generalPrompt").text("Sorry, but there\'s some problem with your '
+                                    + 'connection or the server is down.");
+			    };
+
+			    // most important part - incoming messages
+			    connection.onmessage = function (message) {
+			        // try to parse JSON message. Because we know that the server always returns
+			        // JSON this should work without any problem but we should make sure that
+			        // the massage is not chunked or otherwise damaged.
+			        try {
+			            var json = JSON.parse(message.data);
+			        } catch (e) {
+			            console.log('This doesn\'t look like a valid JSON: ', message.data);
+			            return;
+			        }
+
+			        posX = json.posX;
+			     	posY = json.posY;
+			        angle = json.angle;
+
+			        drawScene();   
+			    }
+
                 //Ceci est une boucle de jeu
                 repGP = window.setInterval(reportOnGamepad,100); //On interroge régulièrement le gamePad pour connaître ses variations d'état
                 //Dans l'idéal, on utilise pas setInterval mais requestAnimationFrame (cf http://creativejs.com/resources/requestanimationframe/)
@@ -97,6 +140,7 @@
 		drawCar(posX, posY, carWidth, carHeight, angleInDegrees);
 		
 	};
+	
 	image.src = "car.png";
 
 	function drawCar(posX, posY, larg, haut, angle){
@@ -109,9 +153,21 @@
 	}
 
 	function gameLoop(){
-		updateState();
-		drawScene();
-		
+		//updateState();
+		sendState();
+		//drawScene();
+	}
+
+	function sendState(){
+		var gp = navigator.getGamepads()[0];
+
+		var state = {
+			up : gp.buttons[7].pressed,
+			down : gp.buttons[6].pressed,
+			dir : gp.axes[0]
+		}
+
+		connection.send(JSON.stringify(state));
 	}
 
 	function updateState(){
