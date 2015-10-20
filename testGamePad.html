@@ -16,7 +16,7 @@
  	
 	
     <script>
-    var serverAdress = "ws://localhost"
+    var serverAdress = "ws://148.60.140.144"
     var serverPort = "1099"
     var hasGP = false; //est ce que le gamePad est connecté?
     var repGP;
@@ -185,7 +185,7 @@
 
 	    // if browser doesn't support WebSocket, just show some notification and exit
 	    if (!window.WebSocket) {
-	    	$("generalPrompt").text('Sorry, but your browser doesn\'t '
+	    	$("#generalPrompt").html('Sorry, but your browser doesn\'t '
                             + 'support WebSockets.');
 	        return;
 	    }
@@ -194,12 +194,14 @@
 	    connection = new WebSocket(serverAdress + ":" + serverPort);
         
 	    connection.onopen = function () {
-	        $("generalPrompt").text("Pour commencer, branchez votre gamePad et appuyez sur un bouton");
+	        $("#generalPrompt").html("Pour commencer, branchez votre gamePad et appuyez sur un bouton");
 	    };
 
 	    connection.onerror = function (error) {
-	        $("generalPrompt").text("Sorry, but there\'s some problem with your "
+	        $("#generalPrompt").html("Sorry, but there\'s some problem with your "
                             + "connection or the server is down.");
+
+	        exit();
 	    };
 
 	    // most important part - incoming messages
