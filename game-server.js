@@ -15,7 +15,7 @@ var clients = [ ];
 var server = http.createServer(function(request, response) {
     // Not important for us. We're writing WebSocket server, not HTTP server
 });
-server.listen(webSocketsServerPort, function() {
+server.listen(webSocketsServerPort, "0.0.0.0", function() {
     console.log((new Date()) + " Server is listening on port " + webSocketsServerPort);
 });
 
@@ -39,7 +39,7 @@ wsServer.on('request', function(request) {
 	
 	var connection = request.accept(null, request.origin);
 	
-	console.log((new Date()) + ' Connection accepted.');
+	
 	
 	var index = clients.push({
 		posX : WIDTH/2,
@@ -48,6 +48,8 @@ wsServer.on('request', function(request) {
 		angle : 0	
 	}) -1;
 	clients.index = index;
+
+	console.log((new Date()) + ' Connection accepted from user ' + index + '.');
 	
     connection.on('message', function(message) {
         
@@ -105,6 +107,8 @@ wsServer.on('request', function(request) {
     // user disconnected
     connection.on('close', function(connection) {
 		clients.splice(index, 1);
+
+		console.log((new Date()) + ' Disconnection of client ' + index + '.');
     });
 
 	
