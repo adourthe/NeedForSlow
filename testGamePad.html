@@ -231,21 +231,31 @@
 	var image = document.createElement("img");
 	image.onload = function(){
 		angle = 0;
-		drawCar(posX, posY, carWidth, carHeight, angleInDegrees);
-		
+		drawCar(0, posX, posY, carWidth, carHeight, angleInDegrees);
 	};
+	image.src = "car0.png";
 
-	image.src = "car.png";
+	var getCar = [];
+
+	for(i = 0; i < 6 ; i++){
+		getCar[i] = document.createElement("img");
+		getCar[i].src = "car" + i + ".png";
+	}
+
 
 	var upTemp = false;
 	var downTemp = false;
 	var dirTemp = 0;
 
-	function drawCar(posX, posY, larg, haut, angle){
+	function drawCar(nCar, posX, posY, larg, haut, angle){
 		ctx.save();
 		ctx.translate(posX,posY);
 		ctx.rotate(angle);
-		ctx.drawImage(image,0,0,image.width,image.height, -larg/2, -haut/2,larg,haut);
+
+		var carX = nCar / 2;
+		var carY = nCar % 2;
+
+		ctx.drawImage(getCar[nCar],0,0,getCar[nCar].width, getCar[nCar].height, -larg/2, -haut/2,larg,haut);
 		ctx.restore();
 	}
 
@@ -329,7 +339,7 @@
 		ctx.clearRect(0,0,canvas.width,canvas.height);
 
 		for(i = 0 ; i < allPlayers.length ; i++){
-			drawCar(allPlayers[i].posX, allPlayers[i].posY, carWidth, carHeight, allPlayers[i].angle);
+			drawCar(i, allPlayers[i].posX, allPlayers[i].posY, carWidth, carHeight, allPlayers[i].angle);
 		}
 		//document.getElementById("speedPrompt").innerHTML="Speed : " + speed;
 	}
