@@ -98,6 +98,41 @@ wsServer.on('request', function(request) {
 			clients[index].posY = HEIGHT - CAR_WIDTH/2;
 		}
 
+		for (var i=0; i<clients.length; i++){
+
+			if (i != index){
+				var vectX1 = clients[i].posX - clients[index].posX;
+				var vectY1 = clients[i].posY - clients[index].posY;
+
+				var dist = Math.sqrt(vectX1*vectX1 + vectY1*vectY1);
+
+					
+
+				if (dist < CAR_WIDTH) {
+					
+					
+					vectX1 = vectX1/dist;
+					vectY1 = vectY1/dist;
+
+					var vectX2 = Math.cos(clients[index].angle);
+					var vectY2 = Math.sin(clients[index].angle);
+
+					//console.log(vectX1*vectX2+vectY1*vectY2);
+
+
+					if (Math.abs(vectX1*vectX2+vectY1*vectY2) < 0.5){
+
+						clients[index].speed = 0;
+						clients[i].posX = clients[index].posX+vectX1*(CAR_WIDTH+1);
+						clients[i].posY = clients[index].posY+vectY1*(CAR_WIDTH+1);
+
+					}
+
+				}
+			}
+
+		}
+
 		clients[index].posX += client.speed * Math.sin(client.angle);
 		clients[index].posY -= client.speed * Math.cos(client.angle);
 
