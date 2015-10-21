@@ -68,8 +68,6 @@
 	                //Ceci est une boucle de jeu
 	                repGP = window.setInterval(reportOnGamepad,100); //On interroge régulièrement le gamePad pour connaître ses variations d'état
 	                //Dans l'idéal, on utilise pas setInterval mais requestAnimationFrame (cf http://creativejs.com/resources/requestanimationframe/)
-
-					setInterval(gameLoop, 15); 
 				}
             });
  
@@ -90,8 +88,6 @@
 	                //Ceci est une boucle de jeu
 	                //repGP = window.setInterval(reportOnGamepad,100); //On interroge régulièrement le gamePad pour connaître ses variations d'état
 	                //Dans l'idéal, on utilise pas setInterval mais requestAnimationFrame (cf http://creativejs.com/resources/requestanimationframe/)
-
-					setInterval(gameLoop, 15); 
 				}
             });
  
@@ -176,6 +172,8 @@
             		}
             	}
             })
+
+    		setInterval(gameLoop, 15); 
         }
     });
 
@@ -233,9 +231,9 @@
 	var image = document.createElement("img");
 	image.onload = function(){
 		angle = 0;
-		drawCar(0, posX, posY, carWidth, carHeight, angleInDegrees);
+		//drawCar(0, posX, posY, carWidth, carHeight, angleInDegrees);
 	};
-	image.src = "car0.png";
+	image.src = "start.png";
 
 	var getCar = [];
 
@@ -261,10 +259,49 @@
 		ctx.restore();
 	}
 
+	multipl = 1;
+	multiplGrow = true;
+
+	angleGrow = true;
+
 	function gameLoop(){
-		//updateState();
-		sendState();
-		//drawScene();
+		if(hasGP || hasKeyboard){
+			//updateState();
+			sendState();
+			//drawScene();
+		} else {
+			if(angle > Math.PI/4){
+				angleGrow = false;
+			} else if (angle < 0) {
+				angleGrow = true;
+			}
+
+			if(multipl > 1.5){
+				multiplGrow = false;
+			} else if (multipl < 0.75) {
+				multiplGrow = true;
+			}
+
+			if(angleGrow){
+				angle += 0.01;
+			} else {
+				angle -= 0.01;
+			}
+
+			if(multiplGrow){
+				multipl += 0.01;
+			} else {
+				multipl -= 0.01;
+			}
+
+			ctx.clearRect(0,0,canvas.width,canvas.height);
+			ctx.save();
+			ctx.translate(canvas.width/2,canvas.height/2);
+			ctx.rotate(angle);
+			ctx.drawImage(image,0,0,image.width, image.height, -(image.width*multipl)/2, -(image.height*multipl)/2,image.width * multipl,image.height * multipl);
+			ctx.restore();
+
+		}
 	}
 
 	function sendState(){
