@@ -257,10 +257,18 @@
 
 		ctx.drawImage(getCar[nCar],0,0,getCar[nCar].width, getCar[nCar].height, -larg/2, -haut/2,larg,haut);
 		ctx.restore();
+
+		ctx.beginPath();
+      	ctx.arc(posX, posY, (haut+larg)/4, 0, 2 * Math.PI, false);
+      	ctx.lineWidth = 5;
+	    ctx.strokeStyle = '#003300';
+	    ctx.stroke();
 	}
 
 	multipl = 1;
-	multiplGrow = true;
+	multiplGrow = true;context.lineWidth = 5;
+      context.strokeStyle = '#003300';
+      context.stroke();
 
 	angleGrow = true;
 

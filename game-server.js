@@ -34,6 +34,8 @@ var HEIGHT = 600;
 var CAR_WIDTH = 52;
 var CAR_HEIGHT = 94;
 
+var HITBOX_WIDTH = (CAR_WIDTH+CAR_HEIGHT)/2;
+
 wsServer.on('request', function(request) {
     console.log((new Date()) + ' Connection from origin ' + request.origin + '.');
 	
@@ -78,24 +80,24 @@ wsServer.on('request', function(request) {
 			}
 		}
 
-		if(client.posX - CAR_WIDTH/2 < 0){
+		if(client.posX - HITBOX_WIDTH/2 < 0){
 			clients[index].speed = 0;
-			clients[index].posX = CAR_WIDTH/2;
+			clients[index].posX = HITBOX_WIDTH/2;
 		}
 
-		if(client.posX + CAR_WIDTH/2 > WIDTH){
+		if(client.posX + HITBOX_WIDTH/2 > WIDTH){
 			clients[index].speed = 0;
-			clients[index].posX = WIDTH - CAR_WIDTH/2;
+			clients[index].posX = WIDTH - HITBOX_WIDTH/2;
 		}
 
-		if(client.posY - CAR_WIDTH/2 < 0){
+		if(client.posY - HITBOX_WIDTH/2 < 0){
 			clients[index].speed = 0;
-			clients[index].posY = CAR_WIDTH/2;
+			clients[index].posY = HITBOX_WIDTH/2;
 		}
 
-		if(client.posY + CAR_WIDTH/2 > HEIGHT){
+		if(client.posY + HITBOX_WIDTH/2 > HEIGHT){
 			clients[index].speed = 0;
-			clients[index].posY = HEIGHT - CAR_WIDTH/2;
+			clients[index].posY = HEIGHT - HITBOX_WIDTH/2;
 		}
 
 		for (var i=0; i<clients.length; i++){
@@ -108,7 +110,7 @@ wsServer.on('request', function(request) {
 
 					
 
-				if (dist < CAR_WIDTH) {
+				if (dist < HITBOX_WIDTH) {
 					
 					
 					vectX1 = vectX1/dist;
@@ -123,8 +125,8 @@ wsServer.on('request', function(request) {
 					if (Math.abs(vectX1*vectX2+vectY1*vectY2) < 0.5){
 
 						clients[index].speed = 0;
-						clients[i].posX = clients[index].posX+vectX1*(CAR_WIDTH+1);
-						clients[i].posY = clients[index].posY+vectY1*(CAR_WIDTH+1);
+						clients[i].posX = clients[index].posX+vectX1*(HITBOX_WIDTH+1);
+						clients[i].posY = clients[index].posY+vectY1*(HITBOX_WIDTH+1);
 
 					}
 
