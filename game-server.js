@@ -47,7 +47,8 @@ wsServer.on('request', function(request) {
 		posX : WIDTH/2,
 		posY : HEIGHT/2,
 		speed : 0,
-		angle : 0	
+		angle : 0,
+		life : 100	
 	}) -1;
 	clients.index = index;
 
@@ -124,6 +125,7 @@ wsServer.on('request', function(request) {
 
 					if (Math.abs(vectX1*vectX2+vectY1*vectY2) < 0.5){
 
+						clients[i].life = Math.max(clients[i].life - Math.abs(clients[index].speed/7.0*10.0), 0);
 						clients[index].speed = 0;
 						clients[i].posX = clients[index].posX+vectX1*(HITBOX_WIDTH+1);
 						clients[i].posY = clients[index].posY+vectY1*(HITBOX_WIDTH+1);

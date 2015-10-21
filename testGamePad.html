@@ -247,7 +247,7 @@
 	var downTemp = false;
 	var dirTemp = 0;
 
-	function drawCar(nCar, posX, posY, larg, haut, angle){
+	function drawCar(nCar, posX, posY, larg, haut, angle, life){
 		ctx.save();
 		ctx.translate(posX,posY);
 		ctx.rotate(angle);
@@ -255,20 +255,26 @@
 		var carX = nCar / 2;
 		var carY = nCar % 2;
 
-		ctx.drawImage(getCar[nCar],0,0,getCar[nCar].width, getCar[nCar].height, -larg/2, -haut/2,larg,haut);
+		ctx.drawImage(getCar[nCar%6],0,0,getCar[nCar%6].width, getCar[nCar%6].height, -larg/2, -haut/2,larg,haut);
 		ctx.restore();
 
 		ctx.beginPath();
-      	ctx.arc(posX, posY, (haut+larg)/4, 0, 2 * Math.PI, false);
-      	ctx.lineWidth = 5;
-	    ctx.strokeStyle = '#003300';
+      	ctx.arc(posX, posY, haut/1.5, 0, 2 * Math.PI, false);
+      	ctx.lineWidth = 2;
+	    ctx.strokeStyle = '#000000';
 	    ctx.stroke();
+
+		ctx.beginPath();
+      	ctx.arc(posX, posY, haut/1.5, 0, 2 * Math.PI*life/100.0, false);
+      	ctx.lineWidth = 5;
+	    ctx.strokeStyle = '#00AA00';
+	    ctx.stroke();
+
+	    
 	}
 
 	multipl = 1;
-	multiplGrow = true;context.lineWidth = 5;
-      context.strokeStyle = '#003300';
-      context.stroke();
+	multiplGrow = true;
 
 	angleGrow = true;
 
@@ -386,7 +392,7 @@
 		ctx.clearRect(0,0,canvas.width,canvas.height);
 
 		for(i = 0 ; i < allPlayers.length ; i++){
-			drawCar(i, allPlayers[i].posX, allPlayers[i].posY, carWidth, carHeight, allPlayers[i].angle);
+			drawCar(i, allPlayers[i].posX, allPlayers[i].posY, carWidth, carHeight, allPlayers[i].angle, allPlayers[i].life);
 		}
 		//document.getElementById("speedPrompt").innerHTML="Speed : " + speed;
 	}
