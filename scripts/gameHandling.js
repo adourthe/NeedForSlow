@@ -115,7 +115,7 @@ function initGame(){
         			case 83:
         				downTemp = true;
         				break;
-        			case 32:
+        			case 72:
         				sendToServer("SNAPSHOT");
         				break;
         			default:

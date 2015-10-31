@@ -19,12 +19,14 @@ function launchConnection(){
 
 	connection.onopen = function () {
 	    $("#generalPrompt").html("Connected to the server");
+	    console.log("Connected to the server " + serverAdress + ":" + serverPort);
 	};
 
 	connection.onerror = function (error) {
 	    $("#generalPrompt").html("Sorry, but there\'s some problem with your "
-	                    + "connection or the server is down.");
-	    connection = null;
+	                    + "connection or the server is down.\n\nRetrying...");
+
+    	connection = new WebSocket(serverAdress + ":" + serverPort);
 	};
 
 	// most important part - incoming messages
