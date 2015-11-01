@@ -1,4 +1,5 @@
 var video = document.querySelector('video');
+var snapshotTemp = [];
 
 function canStream() 
 {
@@ -38,16 +39,31 @@ function sendSnapshot(){
 	snapCtx.drawImage(video, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
 	var dataURI = snapshotCanvas.toDataURL();
 
-	document.getElementById("snapshotImg").src = dataURI;
+	var cuttedDataURI = [];
+	var currentSlice;
+	var i = 0;
 
-	var snapshot = {
-		type : "Snapshot",
-		data : dataURI
+	while(dataURI != ""){
+		currentSlice = dataURI.slice(0, 60000);
+		dataURI = dataURI.slice(60000)
+
+		cuttedDataURI.push({
+			type : "Snapshot",
+			place : i,
+			data : currentSlice
+		});
+
+		i++;
 	}
 
-	sendToServer(dataURI);
-//	connection.send(dataURI);
-//	console.log(dataURI);
+	var maxI = i;
+
+	console.log(cuttedDataURI);
+
+	for(i = 0 ; i < cuttedDataURI.length ; i++){
+		cuttedDataURI[i].max = maxI;
+		sendToServer(cuttedDataURI[i], true);
+	}
 }
 
 function initVideo(){
@@ -65,5 +81,21 @@ function initVideo(){
 		} else {
 			$("#videoPrompt").html("getUserMedia() n’est pas disponible depuis votre navigateur !");
 		}			
+	}
+}
+
+function printSnapshot(snapshot){
+	snapshotTemp[snapshot.place] = snapshot.data;
+
+	if(snapshotTemp.length == snapshot.max){
+		var completedSnapshot = "";
+
+		for(i = 0 ; i < snapshotTemp.length ; i++){
+			completedSnapshot += snapshotTemp[i];
+		}
+
+		document.getElementById("snapshotImg").src = completedSnapshot;
+
+		snapshotTemp = [ ];
 	}
 }

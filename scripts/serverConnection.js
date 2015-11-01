@@ -24,14 +24,12 @@ function launchConnection(){
 
 	connection.onerror = function (error) {
 	    $("#generalPrompt").html("Sorry, but there\'s some problem with your "
-	                    + "connection or the server is down.\n\nRetrying...");
-
-    	connection = new WebSocket(serverAdress + ":" + serverPort);
+	                    + "connection or the server is down.");
 	};
 
 	// most important part - incoming messages
 	connection.onmessage = function (message) {
-		console.log(message);
+		//console.log(message);
 	    // try to parse JSON message. Because we know that the server always returns
 	    // JSON this should work without any problem but we should make sure that
 	    // the massage is not chunked or otherwise damaged.
@@ -45,7 +43,11 @@ function launchConnection(){
 	            return;
 	        }
 
-	        drawScene(json);   
+        	if(json.type){
+    			printSnapshot(json);
+        	} else {
+	        	drawScene(json);   
+	    	}
 	    }
 	}
 }
@@ -57,7 +59,7 @@ function sendToServer(message, json = false){
 			connection.send(JSON.stringify(message));
 		} else {
 			console.log("Message sent : " + message);
-			connection.send(message);
+			var result = connection.send(message);
 		}
 	}
 }

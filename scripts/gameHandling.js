@@ -115,8 +115,8 @@ function initGame(){
         			case 83:
         				downTemp = true;
         				break;
-        			case 72:
-        				sendToServer("SNAPSHOT");
+        			/*case 72:
+        				sendToServer("SNAPSHOT");*/
         				break;
         			default:
         				break;
@@ -222,12 +222,14 @@ function drawScene(allPlayers){
 	ctx.clearRect(0,0,canvas.width,canvas.height);
 
 	for(i = 0 ; i < allPlayers.length ; i++){
-		drawCar(i, allPlayers[i].posX, allPlayers[i].posY, carWidth, carHeight, allPlayers[i].angle, allPlayers[i].life, allPlayers[i].snapshot);
+        if(allPlayers[i].display){
+		  drawCar(i, allPlayers[i].posX, allPlayers[i].posY, carWidth, carHeight, allPlayers[i].angle, allPlayers[i].life);
+        }
 	}
 	//document.getElementById("speedPrompt").innerHTML="Speed : " + speed;
 }
 
-function drawCar(nCar, posX, posY, larg, haut, angle, life, snapshot){
+function drawCar(nCar, posX, posY, larg, haut, angle, life){
 	ctx.save();
 	ctx.translate(posX,posY);
 	ctx.rotate(angle);
@@ -235,17 +237,8 @@ function drawCar(nCar, posX, posY, larg, haut, angle, life, snapshot){
 	var carX = nCar / 2;
 	var carY = nCar % 2;
 
-	if(snapshot == ""){
-		ctx.drawImage(getCar[nCar%6],0,0,getCar[nCar%6].width, getCar[nCar%6].height, -larg/2, -haut/2,larg,haut);
-		ctx.restore();
-	} else {
-		var snapshotDraw = document.createElement("img");
-		snapshotDraw.src = snapshot;
-
-		ctx.restore();
-		ctx.drawImage(snapshotDraw,0,0,getCar[nCar%6].width, getCar[nCar%6].height, -larg/2, -haut/2,larg,haut);
-	}
-
+	ctx.drawImage(getCar[nCar%6],0,0,getCar[nCar%6].width, getCar[nCar%6].height, -larg/2, -haut/2,larg,haut);
+	ctx.restore();
 
 	ctx.beginPath();
   	ctx.arc(posX, posY, haut/1.5, 0, 2 * Math.PI, false);
