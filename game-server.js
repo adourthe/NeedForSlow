@@ -77,109 +77,112 @@ wsServer.on('request', function(request) {
 		if(state.type == 'state'){
 			//On met à jour l'objet correspondant
 
-			var client = clients[index];
-			
-			//Si le client n'est pas mort, il peut bouger
-			if(clients[index].life > 0){
-				//Modification de l'angle selon la direction
-				if (state.dir < -0.4) {
-					clients[index].angle += sign(client.speed)*-0.05;		
-				} else if (state.dir > 0.4) {
-					clients[index].angle += sign(client.speed)*0.05;		
-				}
+			if (typeof clients[index] !== 'undefined'){
 
-				//Modification de la vitesse
-				if (state.up) {			
-					clients[index].speed = Math.min(client.speed + 0.1, 7);
-				} else if (state.down) {
-					clients[index].speed = Math.max(client.speed - 0.1, -5);
-				} else {
-					if(client.speed > 0){
-						clients[index].speed = Math.max(client.speed - 0.05, 0);
-					} else {
-						clients[index].speed = Math.min(client.speed + 0.05, 0);
+				var client = clients[index];
+				
+				//Si le client n'est pas mort, il peut bouger
+				if(clients[index].life > 0){
+					//Modification de l'angle selon la direction
+					if (state.dir < -0.4) {
+						clients[index].angle += sign(client.speed)*-0.05;		
+					} else if (state.dir > 0.4) {
+						clients[index].angle += sign(client.speed)*0.05;		
 					}
-				}
 
-				//Gestion des bords du terrain
-				if(client.posX - HITBOX_WIDTH/2 < 0){
-					clients[index].speed = 0;
-					clients[index].posX = HITBOX_WIDTH/2;
-				}
+					//Modification de la vitesse
+					if (state.up) {			
+						clients[index].speed = Math.min(client.speed + 0.1, 7);
+					} else if (state.down) {
+						clients[index].speed = Math.max(client.speed - 0.1, -5);
+					} else {
+						if(client.speed > 0){
+							clients[index].speed = Math.max(client.speed - 0.05, 0);
+						} else {
+							clients[index].speed = Math.min(client.speed + 0.05, 0);
+						}
+					}
 
-				if(client.posX + HITBOX_WIDTH/2 > WIDTH){
-					clients[index].speed = 0;
-					clients[index].posX = WIDTH - HITBOX_WIDTH/2;
-				}
+					//Gestion des bords du terrain
+					if(client.posX - HITBOX_WIDTH/2 < 0){
+						clients[index].speed = 0;
+						clients[index].posX = HITBOX_WIDTH/2;
+					}
 
-				if(client.posY - HITBOX_WIDTH/2 < 0){
-					clients[index].speed = 0;
-					clients[index].posY = HITBOX_WIDTH/2;
-				}
+					if(client.posX + HITBOX_WIDTH/2 > WIDTH){
+						clients[index].speed = 0;
+						clients[index].posX = WIDTH - HITBOX_WIDTH/2;
+					}
 
-				if(client.posY + HITBOX_WIDTH/2 > HEIGHT){
-					clients[index].speed = 0;
-					clients[index].posY = HEIGHT - HITBOX_WIDTH/2;
-				}
+					if(client.posY - HITBOX_WIDTH/2 < 0){
+						clients[index].speed = 0;
+						clients[index].posY = HITBOX_WIDTH/2;
+					}
 
-				//Gestion desz collisions entre clients
-				for (var i=0; i<clients.length; i++){
+					if(client.posY + HITBOX_WIDTH/2 > HEIGHT){
+						clients[index].speed = 0;
+						clients[index].posY = HEIGHT - HITBOX_WIDTH/2;
+					}
 
-					//Une collision ne peut avoir lieu entre un client et lui-même
-					if (i != index){
-						var vectX1 = clients[i].posX - clients[index].posX;
-						var vectY1 = clients[i].posY - clients[index].posY;
+					//Gestion desz collisions entre clients
+					for (var i=0; i<clients.length; i++){
 
-						var dist = Math.sqrt(vectX1*vectX1 + vectY1*vectY1);
+						//Une collision ne peut avoir lieu entre un client et lui-même
+						if (i != index){
+							var vectX1 = clients[i].posX - clients[index].posX;
+							var vectY1 = clients[i].posY - clients[index].posY;
 
-							
-						//Si les hitbox sont en collision
-						if (dist < HITBOX_WIDTH) {
-							vectX1 = vectX1/dist;
-							vectY1 = vectY1/dist;
+							var dist = Math.sqrt(vectX1*vectX1 + vectY1*vectY1);
 
-							var vectX2 = Math.cos(clients[index].angle);
-							var vectY2 = Math.sin(clients[index].angle);
+								
+							//Si les hitbox sont en collision
+							if (dist < HITBOX_WIDTH) {
+								vectX1 = vectX1/dist;
+								vectY1 = vectY1/dist;
 
-							//console.log(vectX1*vectX2+vectY1*vectY2);
+								var vectX2 = Math.cos(clients[index].angle);
+								var vectY2 = Math.sin(clients[index].angle);
 
-							//On calcule l'angle de la collision pour repousser la victime dans le bon sens
-							if (Math.abs(vectX1*vectX2+vectY1*vectY2) < 0.5){
+								//console.log(vectX1*vectX2+vectY1*vectY2);
 
-								clients[i].life = Math.max(clients[i].life - Math.abs(clients[index].speed/7.0*10.0), 0);
-								clients[index].speed = 0;
-								clients[i].posX = clients[index].posX+vectX1*(HITBOX_WIDTH+1);
-								clients[i].posY = clients[index].posY+vectY1*(HITBOX_WIDTH+1);
+								//On calcule l'angle de la collision pour repousser la victime dans le bon sens
+								if (Math.abs(vectX1*vectX2+vectY1*vectY2) < 0.5){
 
-								//Si la victime n'a plus de vie, on demande une capture de webcam, on ne l'affiche plus et on le sort du terrain
-								if(clients[i].life <= 0){
-									targets[i].sendUTF("REQUEST SNAPSHOT");
+									clients[i].life = Math.max(clients[i].life - Math.abs(clients[index].speed/7.0*10.0), 0);
+									clients[index].speed = 0;
+									clients[i].posX = clients[index].posX+vectX1*(HITBOX_WIDTH+1);
+									clients[i].posY = clients[index].posY+vectY1*(HITBOX_WIDTH+1);
 
-									clients[i].display = false;
+									//Si la victime n'a plus de vie, on demande une capture de webcam, on ne l'affiche plus et on le sort du terrain
+									if(clients[i].life <= 0){
+										targets[i].sendUTF("REQUEST SNAPSHOT");
 
-									clients[i].posX = -(HITBOX_WIDTH+1);
-									clients[i].posY = -(HITBOX_WIDTH+1);
+										clients[i].display = false;
+
+										clients[i].posX = -(HITBOX_WIDTH+1);
+										clients[i].posY = -(HITBOX_WIDTH+1);
+
+									}
 
 								}
 
 							}
-
 						}
 					}
+
+				//Si le client est mort, on met sa vitesse à 0
+				} else {
+					clients[index].speed = 0;
 				}
 
-			//Si le client est mort, on met sa vitesse à 0
-			} else {
-				clients[index].speed = 0;
+				//Calcul de la nouvelle position en fonction de la vitesse et de l'angle
+				clients[index].posX += client.speed * Math.sin(client.angle);
+				clients[index].posY -= client.speed * Math.cos(client.angle);
+
+				//On renvoie tous les clients à l'emetteur du message
+				targets[index].sendUTF(JSON.stringify(clients));
+				console.log(JSON.stringify(clients));
 			}
-
-			//Calcul de la nouvelle position en fonction de la vitesse et de l'angle
-			clients[index].posX += client.speed * Math.sin(client.angle);
-			clients[index].posY -= client.speed * Math.cos(client.angle);
-
-			//On renvoie tous les clients à l'emetteur du message
-			targets[index].sendUTF(JSON.stringify(clients));
-			console.log(JSON.stringify(clients));
 		//Si le message n'est pas un etat de client, c'est un morceau de capture de webcam
 		} else {
 			console.log(state.data);
@@ -189,12 +192,13 @@ wsServer.on('request', function(request) {
 				targets[i].sendUTF(JSON.stringify(state));
 			}
 		}
+
     });
 
     //En cas de déconnection, on retire le client de la liste
     connection.on('close', function(connection) {
-		clients.splice(index, 1);
-		targets.splice(index, 1);
+		clients.splice(clientsToRemove[i], 1);
+		targets.splice(clientsToRemove[i], 1);
 
 		console.log((new Date()) + ' Disconnection of client ' + index + '.');
     });
@@ -202,6 +206,7 @@ wsServer.on('request', function(request) {
 	
 
 });
+
 
 
 //Fonctions utilitaires
