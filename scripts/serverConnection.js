@@ -57,7 +57,11 @@ function launchConnection(){
 
 
 //Permet d'envoyer un objet au serveur
-function sendToServer(message, json = false){
+function sendToServer(message, json){
+	if (json === undefined) {
+        json = false;
+    }
+	
 	if(connection != null){
 		if(json){
 			console.log("Message sent : " + JSON.stringify(message));
