@@ -1,8 +1,10 @@
+//Definition des variables pour la connection au serveur
 var serverAdress = "ws://localhost";
 var serverPort = "1099";
 
 var connection;
 
+//Permet de lancer la connection
 function launchConnection(){
 	// if user is running mozilla then use it's built-in WebSocket
 	window.WebSocket = window.WebSocket || window.MozWebSocket;
@@ -29,13 +31,13 @@ function launchConnection(){
 
 	// most important part - incoming messages
 	connection.onmessage = function (message) {
-		//console.log(message);
-	    // try to parse JSON message. Because we know that the server always returns
-	    // JSON this should work without any problem but we should make sure that
-	    // the massage is not chunked or otherwise damaged.
-	    if(message.data == "REQUEST SNAPSHOT"){
+		console.log(message);
+
+		//Si le message est une requête de webcam du serveur, on envoie la capture
+	    if(message.data == "REQUEST SNAPSHOT"){}
 	    	sendSnapshot();
 	    } else {
+	    	//Sinon, le serveur à normalement envoyé un état de jeu ou une capture
 	        try {
 	            var json = JSON.parse(message.data);
 	        } catch (e) {
@@ -43,15 +45,18 @@ function launchConnection(){
 	            return;
 	        }
 
+	        //Si le champ type existe, c'est qu'il s'agit d'une capture, on l'affiche donc
         	if(json.type){
     			printSnapshot(json);
-        	} else {
+        	} else { //Sinon, c'est un état de jeu, on réaffiche donc le canvas
 	        	drawScene(json);   
 	    	}
 	    }
 	}
 }
 
+
+//Permet d'envoyer un objet au serveur
 function sendToServer(message, json = false){
 	if(connection != null){
 		if(json){

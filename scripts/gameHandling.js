@@ -1,12 +1,14 @@
 var hasGP = false; //est ce que le gamePad est connecté?
 var repGP;
-var hasKeyboard = false;
+var hasKeyboard = false; //Est ce qu'un clavier sert de gamepad ?
 
+//Variables pour l'affichage du logo start
 var multipl = 1;
 var multiplGrow = true;
 var angleGrow = true;
 var angle = 0;
 
+//Varibales de gestion du clavier
 var upTemp = false;
 var downTemp = false;
 var dirTemp = 0;
@@ -16,25 +18,7 @@ function canGame() {
     return "getGamepads" in navigator;
 }
 
-
-function reportOnGamepad() {
-    var gp = navigator.getGamepads()[0];//on peut connecter plus d'un gamepad mais on ne teste que le premier ici.
-    var html = "";
-    html += "id: "+gp.id+"<br/>"; //l'objet gamePad a un identifiant de vendeur
-
-    for(var i=0;i<gp.buttons.length;i++) { //Il a aussi une collection de boutons (un tableau)
-        html+= "Button "+(i+1)+": ";
-        if(gp.buttons[i].pressed) html+= " pressed"; //chaque bouton a un état
-        html+= "<br/>";
-    }
-
-    for(var i=0;i<gp.axes.length; i+=2) {//gestion de l'information du joystic (ou du pavé gauche: seulement 2 axes pour Vertical ou horizontal)
-        html+= "Stick "+(Math.ceil(i/2)+1)+": "+gp.axes[i]+","+gp.axes[i+1]+"<br/>";  //conversion en (x,y)
-    }
-
-    $("#gamepadDisplay").html(html); //Affichage
-}// voyez que cette fonction n'est pas rattachée à un événement: elle sera appelée régulièrement par un setInterval (cf plus bas).
-
+//Initialisation du jeu
 function initGame(){
 	if(canGame()) { //on vérifie si le navigateur est suffisament récent.
         var prompt = "Pour commencer, branchez votre gamePad et appuyez sur un bouton";
@@ -46,11 +30,8 @@ function initGame(){
                 $("#gamepadPrompt").html("Gamepad connected!");
                 console.log("connection event");
 
+                //On lance la connection au serveur
                 launchConnection();
-
-                //Ceci est une boucle de jeu
-                repGP = window.setInterval(reportOnGamepad,100); //On interroge régulièrement le gamePad pour connaître ses variations d'état
-                //Dans l'idéal, on utilise pas setInterval mais requestAnimationFrame (cf http://creativejs.com/resources/requestanimationframe/)
 			}
         });
 
@@ -66,11 +47,8 @@ function initGame(){
                 $("#gamepadPrompt").html("Keyboard connected!");
                 console.log("connection event");
 
+                //On lance la connection au serveur
                 launchConnection();
-
-                //Ceci est une boucle de jeu
-                //repGP = window.setInterval(reportOnGamepad,100); //On interroge régulièrement le gamePad pour connaître ses variations d'état
-                //Dans l'idéal, on utilise pas setInterval mais requestAnimationFrame (cf http://creativejs.com/resources/requestanimationframe/)
 			}
         });
 
@@ -78,53 +56,52 @@ function initGame(){
         var checkGP = window.setInterval(function() {
             console.log('checkGP');
             if(navigator.getGamepads()[0]) {
-                if(!hasGP && !hasKeyboard) {
+                if(!hasGP && !hasKeyboard) { //Si ni gamepad ni clavier n'ont été connectés
                 	$(window).trigger("gamepadconnected"); //déclenchement de l'événement
             	}
                 window.clearInterval(checkGP);
             }
         }, 500);
 
+        //On récupère les appuis clavier pour la gestion du clavier comme contrôleur
         $(window).on("keydown", function(e){
     		var event = window.event ? window.event : e;
-        	if(!hasGP && !hasKeyboard){
+        	if(!hasGP && !hasKeyboard){ //Si ni gamepad ni clavier n'est connecté, on connecte le clavier au jeu
         			$(window).trigger("keyboardconnected"); //déclenchement de l'événement	
-        	} else if(hasKeyboard){
+        	} else if(hasKeyboard){ //Si le clavier est connecté, on récupère les entrées (Si un gamepad est connecté, le clavier est inactif)
         		switch(event.keyCode){
-        			case 37:
+        			case 37: //Fleche gauche
         				dirTemp = -1;
         				break;
-        			case 38:
+        			case 38://Fleche haut
     					upTemp = true;
         				break;
-        			case 39:
+        			case 39://Fleche droite
         				dirTemp = 1;
         				break;
-        			case 40:
+        			case 40://Fleche bas
         				downTemp = true;
         				break;
-    				case 81:
+    				case 81://Touche Q
         				dirTemp = -1;
         				break;
-        			case 90:
+        			case 90://Touche Z
     					upTemp = true;
         				break;
-        			case 68:
+        			case 68://Touche D
         				dirTemp = 1;
         				break;
-        			case 83:
+        			case 83://Touche S
         				downTemp = true;
-        				break;
-        			/*case 72:
-        				sendToServer("SNAPSHOT");*/
         				break;
         			default:
         				break;
         		}
         	}
-            window.clearInterval(checkGP);
+            window.clearInterval(checkGP); //Lors de la connection du clavier, on empêche le jeu de détecter un gamepad en plus
         })
-
+        
+        //Permet de relacher les commandes lorsque les touches sont relâchées
         $(window).on("keyup", function(e){
     		var event = window.event ? window.event : e;
         	if(hasKeyboard){
@@ -159,42 +136,36 @@ function initGame(){
         	}
         })
 
+        //On lance la boucle de jeu
 		setInterval(gameLoop, 15); 
     }
 }
 
+//Définition des variables pour l'affichage du jeu
 var canvas = document.getElementById('gameScene');
 var ctx = canvas.getContext("2d");
-
-var angleInDegrees = 0;
-
-
-
-var posX = canvas.width/2, posY = canvas.height/2;
 var carWidth = 52, carHeight = 94;
 
+//Affichage du logo Start
 var image = document.createElement("img");
 image.onload = function(){
 	angle = 0;
 };
 image.src = "start.png";
 
+//Récupération des images de voiture
 var getCar = [];
-
 for(i = 0; i < 6 ; i++){
 	getCar[i] = document.createElement("img");
 	getCar[i].src = "car" + i + ".png";
 }
 
-
-var upTemp = false;
-var downTemp = false;
-var dirTemp = 0;
-
+//Fonction d'envoi de l'état du contrôleur au serveur
 function sendState(){
 	var gp = navigator.getGamepads()[0];
 	var state;
 
+    //Etat du gamepad
 	if(hasGP){
 		state = {
 			type : "state",
@@ -205,6 +176,7 @@ function sendState(){
 
 		sendToServer(state, true);
 		//connection.send(JSON.stringify(state));
+    //On se sert des variable temporaires pour l'état du clavier
 	} else if(hasKeyboard){
 		state = {
 			type : "state",
@@ -218,6 +190,7 @@ function sendState(){
 	}
 }
 
+//Permet d'effacer le canvas et de redessiner les voitures dessus
 function drawScene(allPlayers){
 	ctx.clearRect(0,0,canvas.width,canvas.height);
 
@@ -229,6 +202,7 @@ function drawScene(allPlayers){
 	//document.getElementById("speedPrompt").innerHTML="Speed : " + speed;
 }
 
+//Dessine une voiture sur le canvas
 function drawCar(nCar, posX, posY, larg, haut, angle, life){
 	ctx.save();
 	ctx.translate(posX,posY);
@@ -253,11 +227,12 @@ function drawCar(nCar, posX, posY, larg, haut, angle, life){
     ctx.stroke();
 }
 
+//Bouclke principale
 function gameLoop(){
+    //Si on a un contrôleur, on envoie son état
 	if(hasGP || hasKeyboard){
-		//updateState();
 		sendState();
-		//drawScene();
+    //Sinon, on affiche une petite animation pour le logo START
 	} else {
 		if(angle > Math.PI/4){
 			angleGrow = false;

@@ -1,6 +1,8 @@
+//Définition des variables nécessaires à la vidéo
 var video = document.querySelector('video');
 var snapshotTemp = [];
 
+//Détection de la capabilité du navigateur a diffuser une vidéo
 function canStream() 
 {
 	return (!(typeof window === 'undefined') &&  !(typeof navigator === 'undefined')  && video );
@@ -31,14 +33,18 @@ function gotStream(stream)
     video.play();
 }
 
+//Pour envoyer un snapshot
 function sendSnapshot(){
-	console.log("Snap !");
+	//On commence par récupérer une capture du flux vidéo dans un canvas, qu'on encode en URI
+	//console.log("Snap !");
 	var snapshotCanvas = document.getElementById("snapshotCanvas");
 	var snapCtx = snapshotCanvas.getContext("2d");
 
 	snapCtx.drawImage(video, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
 	var dataURI = snapshotCanvas.toDataURL();
 
+
+	//On découpe l'URI en morceaux de 60000 caractères, pour pouvoir l'envoyer via WebSocket
 	var cuttedDataURI = [];
 	var currentSlice;
 	var i = 0;
@@ -60,12 +66,36 @@ function sendSnapshot(){
 
 	console.log(cuttedDataURI);
 
+	//On envoie tous les morceaux
 	for(i = 0 ; i < cuttedDataURI.length ; i++){
 		cuttedDataURI[i].max = maxI;
 		sendToServer(cuttedDataURI[i], true);
 	}
 }
 
+//A la réception des morceaux de snapshot
+function printSnapshot(snapshot){
+	//On recompose la capture
+	snapshotTemp[snapshot.place] = snapshot.data;
+ 
+ 	//Si la capture est complète, i.e. on a récupéré tous les morceaux
+	if(snapshotTemp.length == snapshot.max){
+		var completedSnapshot = "";
+
+		//On recompose l'image encodée
+		for(i = 0 ; i < snapshotTemp.length ; i++){
+			completedSnapshot += snapshotTemp[i];
+		}
+
+		//Et on l'affiche
+		document.getElementById("snapshotImg").src = completedSnapshot;
+
+		//Puis on réinitialise le tableau de réception
+		snapshotTemp = [ ];
+	}
+}
+
+//Fonction d'initialisation de l'accès à la WebCam
 function initVideo(){
 	if (canStream() ){ 
 	
@@ -84,18 +114,3 @@ function initVideo(){
 	}
 }
 
-function printSnapshot(snapshot){
-	snapshotTemp[snapshot.place] = snapshot.data;
-
-	if(snapshotTemp.length == snapshot.max){
-		var completedSnapshot = "";
-
-		for(i = 0 ; i < snapshotTemp.length ; i++){
-			completedSnapshot += snapshotTemp[i];
-		}
-
-		document.getElementById("snapshotImg").src = completedSnapshot;
-
-		snapshotTemp = [ ];
-	}
-}
