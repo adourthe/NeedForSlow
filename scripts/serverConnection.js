@@ -34,7 +34,7 @@ function launchConnection(){
 		console.log(message);
 
 		//Si le message est une requête de webcam du serveur, on envoie la capture
-	    if(message.data == "REQUEST SNAPSHOT"){}
+	    if(message.data == "REQUEST SNAPSHOT"){
 	    	sendSnapshot();
 	    } else {
 	    	//Sinon, le serveur à normalement envoyé un état de jeu ou une capture
